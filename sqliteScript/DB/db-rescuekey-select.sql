@@ -1,0 +1,1 @@
+SELECT rescuekey FROM info
