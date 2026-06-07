@@ -1,0 +1,1 @@
+INSERT INTO keys (key,ip) VALUES (?,?)

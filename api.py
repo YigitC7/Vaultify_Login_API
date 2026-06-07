@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify
-from database import databaseManager, userManager, folders as DataBaseSysFolders
+from database import databaseManager, userManager, folders as DataBaseSysFolders, ClientKeys
 import newClientRondomKey
 import os
 
 class APIServer:
     def __init__(self):
         self.flask = Flask(__name__)
+
         self.database_manager = databaseManager()
         self.user_manager = userManager()
+        self.ClientKeys = ClientKeys()
+
         self.DBpages()
         self.UserPages()
 
@@ -58,22 +61,18 @@ class APIServer:
         return None
     
     def checkingClientKey(self,key):
-        all_client = os.listdir(DataBaseSysFolders.DB)
-
-        if key in all_client:
-            return True
-        else:
-            return False
+        respons = self.ClientKeys.check_Key(key=key)
+        return respons
     
     def DBpages(self):
-        @self.flask.route("/new_client",methods=["POST"])
-        def new_user():
-            client_key = newClientRondomKey.key()
+        @self.flask.route("/new/client",methods=["POST"])
+        def new_client():
+            NEWclient_key = newClientRondomKey.key()
             try:
-                os.mkdir(DataBaseSysFolders.DB+client_key)
+                os.mkdir(DataBaseSysFolders.DB+NEWclient_key)
                 return jsonify({
                     "info" : "New client key created",
-                    "key" : client_key
+                    "key" : NEWclient_key
                 }),201
             except FileExistsError:
                 return jsonify({
@@ -93,6 +92,9 @@ class APIServer:
 
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
+            
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
             
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
@@ -130,6 +132,9 @@ class APIServer:
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
             
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
+
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
                     "Error" : "You entered the wrong client key"
@@ -161,6 +166,9 @@ class APIServer:
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
             
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
+
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
                     "Error" : "You entered the wrong client key"
@@ -200,6 +208,9 @@ class APIServer:
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
             
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
+
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
                     "Error" : "You entered the wrong client key"
@@ -255,6 +266,9 @@ class APIServer:
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
             
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
+
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
                     "Error" : "You entered the wrong client key"
@@ -294,6 +308,9 @@ class APIServer:
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
             
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
+
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
                     "Error" : "You entered the wrong client key"
@@ -337,6 +354,9 @@ class APIServer:
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
             
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
+
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
                     "Error" : "You entered the wrong client key"
@@ -386,6 +406,9 @@ class APIServer:
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
             
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
+
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
                     "Error" : "You entered the wrong client key"
@@ -432,6 +455,9 @@ class APIServer:
             if checkingparameters != None:
                 return jsonify(checkingparameters),400
             
+            if self.checkingClientKey(ClientKey) == "systemError":
+                return jsonify(self.DBMessages("systemError")[0]),self.DBMessages("systemError")[1]
+
             if self.checkingClientKey(ClientKey) == False:
                 return jsonify({
                     "Error" : "You entered the wrong client key"

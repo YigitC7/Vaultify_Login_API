@@ -103,7 +103,11 @@ class databaseManager:
 
             "new-user" : databaseTools.sqlScriptRead("User/new-user.sql"),
             "user-datas-select" : databaseTools.sqlScriptRead("User/user-datas-select.sql"),
-            "user-delete" : databaseTools.sqlScriptRead("User/user-delete.sql")
+            "user-delete" : databaseTools.sqlScriptRead("User/user-delete.sql"),
+
+            "new-ClientKeys-DB" : databaseTools.sqlScriptRead("ClientKey/new-client-key-db.sql"),
+            "Client-save" : databaseTools.sqlScriptRead("ClientKey/client-save.sql"),
+            "check-key" : databaseTools.sqlScriptRead("ClientKey/check-key.sql")
         }
         
         self.LogPrint = logManager.Log()
@@ -452,3 +456,52 @@ class userManager(databaseManager):
                 return "systemError"
         else:
             return "incorrect password"
+
+
+class ClientKeys(databaseManager):
+    def __init__(self):
+        self.DB_name = "ClientKeys.db"
+
+        self.LogPrint = logManager.Log()
+
+        try:
+            connect = sqlite3.connect(self.DB_name)
+            cursor = connect.cursor()
+
+            cursor.execute(self.sqliteScript["New-ClientKey-DB"])
+
+            connect.commit()
+            connect.close()
+        except Exception as err:
+            self.LogPrint.error(f"[Error] !From database.ClientKeys.__init__ <Database Create Error> : {err}")
+
+    def key_save(self,key,ip):
+        try:
+            connect = sqlite3.connect(self.DB_name)
+            cursor = connect.cursor()
+
+            cursor.execute(self.sqliteScript["Client-save"],(key,ip))
+
+            connect.commit()
+            connect.close()
+
+            return self.success_code
+        except Exception as err:
+            self.LogPrint.error(f"[Error] !From database.ClientKeys.key_save <Database Insert Error> : {err}")
+            return "systemError"
+
+    def check_Key(self,key):
+        try:
+            connect = sqlite3.connect(self.DB_name)
+            cursor = connect.cursor()
+
+            cursor.execute(self.sqliteScript["check-key"],(key,))
+            exists = cursor.fetchall()[0]
+            exists = bool(exists)
+
+            connect.close()
+
+            return exists
+        except Exception as err:
+            self.LogPrint.error(f"[Error] !From database.ClientKeys.check_Key <Database SELECT Error> : {err}")
+            return "systemError"

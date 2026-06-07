@@ -1,6 +1,5 @@
 from random import randint
-from os import listdir
-from database import folders
+from database import ClientKeys
 
 def key():
     randomSTR = ""
@@ -20,8 +19,8 @@ def key():
 
             key = key + randomSTR
 
-        databases = listdir(folders.DB)
+        databases = ClientKeys().check_Key(key)
 
-        if not key in databases:
+        if databases == False:
             return key
         
