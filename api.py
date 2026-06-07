@@ -70,6 +70,9 @@ class APIServer:
             NEWclient_key = newClientRondomKey.key()
             try:
                 os.mkdir(DataBaseSysFolders.DB+NEWclient_key)
+
+                self.ClientKeys.key_save(NEWclient_key,str(request.remote_addr))
+
                 return jsonify({
                     "info" : "New client key created",
                     "key" : NEWclient_key
@@ -84,8 +87,8 @@ class APIServer:
             parameters = request.get_json()
             client_ip = str(request.remote_addr)
 
-            DB_name = parameters.get("name")
-            DB_password = parameters.get("password")
+            DB_name = parameters.get("db-name")
+            DB_password = parameters.get("db-password")
             ClientKey = request.headers.get("client-key")
 
             checkingparameters = self.checkingParameters([DB_name,DB_password,ClientKey])
@@ -123,8 +126,8 @@ class APIServer:
             parameters = request.get_json()
             client_ip = str(request.remote_addr)
 
-            DB_name = parameters.get("name")
-            DB_password = parameters.get("password")
+            DB_name = parameters.get("db-name")
+            DB_password = parameters.get("db-password")
             ClientKey = request.headers.get("client-key")
 
             checkingparameters = self.checkingParameters([DB_name,DB_password,ClientKey])
@@ -156,9 +159,9 @@ class APIServer:
             parameters = request.get_json()
             client_ip = str(request.remote_addr)
 
-            DB_name = parameters.get("name")
+            DB_name = parameters.get("db-name")
             DB_rescueKey = parameters.get("rescue-key")
-            DB_newPassword = parameters.get("new-password")
+            DB_newPassword = parameters.get("db-new-password")
             ClientKey = request.headers.get("client-key")
 
             checkingparameters = self.checkingParameters([DB_name,DB_rescueKey,DB_newPassword,ClientKey])
@@ -199,8 +202,8 @@ class APIServer:
             parameters = request.get_json()
             client_ip = str(request.remote_addr)
 
-            DB_name = parameters.get("name")
-            DB_password = parameters.get("password")
+            DB_name = parameters.get("db-name")
+            DB_password = parameters.get("db-password")
             ClientKey = request.headers.get("client-key")
 
             checkingparameters = self.checkingParameters([DB_name,DB_password,ClientKey])

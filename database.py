@@ -47,16 +47,18 @@ class databaseTools:
         LogPrint = logManager.Log()
 
         try:
-            connect = sqlite3.connect(folders.DB+clientKey+dbName+".db",timeout=14)
+            connect = sqlite3.connect(folders.DB+clientKey+dbName+".db")
             cursor = connect.cursor()
 
             cursor.execute(databaseManager().sqliteScript["db-password-select"])
             data = cursor.fetchall()
             
             cryptPassword = data[0][0]
+            
 
             DB_PasswordAlogrithm = cryptologyAlgorithm.UltraEncrypt(dbPassword)
             DBRealPassword = DB_PasswordAlogrithm.decrypt(cryptPassword)
+            print(DBRealPassword)
 
             connect.close()
 
@@ -65,8 +67,9 @@ class databaseTools:
             return "systemError"
         
         connect.close()
-        
+        print(f"real {DBRealPassword}\nclient pss {dbPassword}")
         if dbPassword == DBRealPassword:
+            
             return True
         else:
             return False
@@ -105,13 +108,14 @@ class databaseManager:
             "user-datas-select" : databaseTools.sqlScriptRead("User/user-datas-select.sql"),
             "user-delete" : databaseTools.sqlScriptRead("User/user-delete.sql"),
 
-            "new-ClientKeys-DB" : databaseTools.sqlScriptRead("ClientKey/new-client-key-db.sql"),
-            "Client-save" : databaseTools.sqlScriptRead("ClientKey/client-save.sql"),
+            "new-client-keys-db" : databaseTools.sqlScriptRead("ClientKey/new-client-key-db.sql"),
+            "client-save" : databaseTools.sqlScriptRead("ClientKey/client-save.sql"),
             "check-key" : databaseTools.sqlScriptRead("ClientKey/check-key.sql")
         }
         
         self.LogPrint = logManager.Log()
         self.success_code = "ok"
+        self.CK_DB_name = "ClientKeys.db"
     
     def new(self,dbName,dbpassword,clientKey,clientIP):        
         DB_PasswordAlogrithm = cryptologyAlgorithm.UltraEncrypt(dbpassword)
@@ -193,7 +197,7 @@ class databaseManager:
 
     def NewDBPassword(self,dbName,dbRescueKey,dbNewPassword,clientKey,clientIP):
         def upgrade():
-            DB_PasswordAlogrithm = cryptologyAlgorithm.UltraEncrypt(dbNewPassword[::3]*3)
+            DB_PasswordAlogrithm = cryptologyAlgorithm.UltraEncrypt(dbNewPassword)
             DB_Sec_Password = DB_PasswordAlogrithm.encrypt(dbNewPassword)
 
             try:
@@ -459,28 +463,24 @@ class userManager(databaseManager):
 
 
 class ClientKeys(databaseManager):
-    def __init__(self):
-        self.DB_name = "ClientKeys.db"
-
-        self.LogPrint = logManager.Log()
-
+    def createDB(self):
         try:
-            connect = sqlite3.connect(self.DB_name)
+            connect = sqlite3.connect(self.CK_DB_name)
             cursor = connect.cursor()
 
-            cursor.execute(self.sqliteScript["New-ClientKey-DB"])
+            cursor.execute(self.sqliteScript["new-client-keys-db"])
 
             connect.commit()
             connect.close()
         except Exception as err:
-            self.LogPrint.error(f"[Error] !From database.ClientKeys.__init__ <Database Create Error> : {err}")
+            self.LogPrint.error(f"[Error] !From database.ClientKeys.createDB <Database Create Error> : {err}")
 
     def key_save(self,key,ip):
         try:
-            connect = sqlite3.connect(self.DB_name)
+            connect = sqlite3.connect(self.CK_DB_name)
             cursor = connect.cursor()
 
-            cursor.execute(self.sqliteScript["Client-save"],(key,ip))
+            cursor.execute(self.sqliteScript["client-save"],(key,ip))
 
             connect.commit()
             connect.close()
@@ -492,7 +492,7 @@ class ClientKeys(databaseManager):
 
     def check_Key(self,key):
         try:
-            connect = sqlite3.connect(self.DB_name)
+            connect = sqlite3.connect(self.CK_DB_name)
             cursor = connect.cursor()
 
             cursor.execute(self.sqliteScript["check-key"],(key,))

@@ -1,5 +1,5 @@
-CREATE TABLE IF NOT EXISTS keys (
+CREATE TABLE IF NOT EXISTS "keys" (
     key TEXT,
-    ip TEXT,
+    ip TEXT
 
 )

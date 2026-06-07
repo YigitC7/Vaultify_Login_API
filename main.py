@@ -1,8 +1,11 @@
 import api
 from os import mkdir
 import logManager
+from database import ClientKeys
 
 log = logManager.Log()
+
+Clientkeys = ClientKeys().createDB()
 
 try:
     mkdir("DataBases")

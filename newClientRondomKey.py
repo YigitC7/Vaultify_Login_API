@@ -8,6 +8,8 @@ def key():
     charset = [[65, 90],[97, 122],[48, 57]]
 
     while True:
+        key = ""
+        
         for i in range(3):
             if i > 0:
                 key = key + "_"
@@ -18,9 +20,10 @@ def key():
                 randomSTR = randomSTR + x
 
             key = key + randomSTR
-
+        """
         databases = ClientKeys().check_Key(key)
 
-        if databases == False:
-            return key
+        if not (databases == True):
+        """
+        return key
         
