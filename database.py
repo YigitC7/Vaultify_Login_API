@@ -313,6 +313,20 @@ class userManager(databaseManager):
 
         if passwordIsTrue == "systemError":
             return passwordIsTrue
+        
+        isUser = self.User_columnQuery(
+            dbName=dbName,
+            dbPassword=dbPassword,
+            clientKey=clientKey,
+            clientIP=clientIP,
+            columnName="username",
+            value=userName
+        )
+
+        if isUser[1]["Exists"] == False:
+            return "user not found"
+        elif isUser == "systemError":
+            return isUser
 
         if passwordIsTrue == True:           
             try:
@@ -349,6 +363,7 @@ class userManager(databaseManager):
 
         if checkingDB[0] == False:
             return checkingDB[1]
+        
 
         passwordIsTrue = databaseTools.passwordCheck(dbName=dbName,dbPassword=dbPassword,clientKey=clientKey,clientIP=clientIP)
 
@@ -391,6 +406,20 @@ class userManager(databaseManager):
 
         if passwordIsTrue == "systemError":
             return passwordIsTrue
+        
+        isUser = self.User_columnQuery(
+            dbName=dbName,
+            dbPassword=dbPassword,
+            clientKey=clientKey,
+            clientIP=clientIP,
+            columnName="username",
+            value=userName
+        )
+
+        if isUser[1]["Exists"] == False:
+            return "user not found"
+        elif isUser == "systemError":
+            return isUser
 
         if passwordIsTrue == True:            
             try:
@@ -424,7 +453,7 @@ class userManager(databaseManager):
 
         if checkingDB[0] == False:
             return checkingDB[1]
-
+    
         passwordIsTrue = databaseTools.passwordCheck(dbName=dbName,dbPassword=dbPassword,clientKey=clientKey,clientIP=clientIP)
 
         if passwordIsTrue == "systemError":

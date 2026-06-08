@@ -247,13 +247,13 @@ class APIServer:
 
             ClientKey = request.headers.get("client-key")
 
-            DB_name = request.headers.get("name")
-            DB_password = request.headers.get("password")
+            DB_name = request.headers.get("db-name")
+            DB_password = request.headers.get("db-password")
 
             user_Name = parameters.get("user-name")
-            user_Password = parameters.get("password")
-            user_Realname = parameters.get("realname")
-            user_Email = parameters.get("email")
+            user_Password = parameters.get("user-password")
+            user_Realname = parameters.get("user-realname")
+            user_Email = parameters.get("user-email")
             user_Data = parameters.get("user-data")
 
             UserDatas = {
@@ -301,8 +301,8 @@ class APIServer:
 
             ClientKey = request.headers.get("client-key")
 
-            DB_name = request.headers.get("name")
-            DB_password = request.headers.get("password")
+            DB_name = request.headers.get("db-name")
+            DB_password = request.headers.get("db-password")
 
             user_Name = parameters.get("user-name")
 
@@ -345,8 +345,8 @@ class APIServer:
 
             ClientKey = request.headers.get("client-key")
 
-            DB_name = request.headers.get("name")
-            DB_password = request.headers.get("password")
+            DB_name = request.headers.get("db-name")
+            DB_password = request.headers.get("db-password")
 
             column_Name = parameters.get("column-name")
             value = parameters.get("value")
