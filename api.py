@@ -11,8 +11,9 @@ class APIServer:
         self.user_manager = userManager()
         self.ClientKeys = ClientKeys()
 
-        self.DBpages()
-        self.UserPages()
+        self.OtherEndpoints()
+        self.DBEndpoints()
+        self.UserEndpoints()
 
         self.columnNames = ["username","password","realname","email","userdata"]
     
@@ -64,7 +65,7 @@ class APIServer:
         respons = self.ClientKeys.check_Key(key=key)
         return respons
     
-    def DBpages(self):
+    def DBEndpoints(self):
         @self.flask.route("/new/client",methods=["POST"])
         def new_client():
             NEWclient_key = newClientRondomKey.key()
@@ -239,7 +240,7 @@ class APIServer:
                 mess = self.DBMessages("systemError")
                 return jsonify(mess[0]),mess[1]
         
-    def UserPages(self):
+    def UserEndpoints(self):
         @self.flask.route("/database/new/user", methods=["POST"])
         def database_new_user():
             parameters = request.get_json()
@@ -483,3 +484,11 @@ class APIServer:
                 "Info" : f"User named {user_Name} has been deleted."
             }),200
 
+    def OtherEndpoints(self):
+        self.flask.route("/",methods=["GET","POST"])
+        def home():
+            return jsonify({"document" : "https://yigitc7.com.tr/dock/vaultify-login-api"}),200
+        
+        @self.flask.errorhandler(404)
+        def not_Endpoint(error):
+            return jsonify({"Error-404": "Endpoint not found"}), 404
