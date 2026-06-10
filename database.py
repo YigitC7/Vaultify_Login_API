@@ -26,7 +26,7 @@ class databaseTools:
             else:
                 return [False,ReturnMessages]
         except Exception as err:
-            LogPrint.error(f"[Error] !From database.checkingDB <System Error> : {err}")
+            LogPrint.error(f"[Error] !From database.databaseTools.checkingDB <System Error> : {err}")
             return "systemError"
         
     def rescuekeyReader(dbName,clientKey):
@@ -43,7 +43,6 @@ class databaseTools:
         return rescueKey
     
     def passwordCheck(dbName,dbPassword,clientKey,clientIP):
-        print(folders.DB+clientKey+dbName+".db")
         LogPrint = logManager.Log()
 
         try:
@@ -58,18 +57,15 @@ class databaseTools:
 
             DB_PasswordAlogrithm = cryptologyAlgorithm.UltraEncrypt(dbPassword)
             DBRealPassword = DB_PasswordAlogrithm.decrypt(cryptPassword)
-            print(DBRealPassword)
 
             connect.close()
 
         except Exception as err:
-            LogPrint.error(f"[Error] !From database.passwordCheck <Database Read Error> : {err}",clientIP)
+            LogPrint.error(f"[Error] !From database.databaseTools.passwordCheck <Database Read Error> : {err}",clientIP)
             return "systemError"
         
-        connect.close()
-        print(f"real {DBRealPassword}\nclient pss {dbPassword}")
+
         if dbPassword == DBRealPassword:
-            
             return True
         else:
             return False
@@ -80,7 +76,7 @@ class databaseTools:
         try:
             return sqlite3.connect(folders.DB+clientKey+dbName+".db",timeout=timeout)
         except Exception as err:
-            LogPrint.error(f"[Error] !From database.UserDatabaseConnect <Database connect error> : {err}",ip=clientIP)
+            LogPrint.error(f"[Error] !From database.databaseTools.UserDatabaseConnect <Database connect error> : {err}",ip=clientIP)
             return "systemError"
         
     def UserEncryptPassword(password):
@@ -145,7 +141,7 @@ class databaseManager:
             connect.close()
 
         except Exception as err:
-            self.LogPrint.error(f"[Error] !From database.new <DB Process Error> : {err}",clientIP)
+            self.LogPrint.error(f"[Error] !From database.databaseManager.new <DB Process Error> : {err}",clientIP)
             return "systemError"
 
         self.LogPrint.info(f"[Info] <Database Created> : {dbName}",clientIP)
@@ -205,10 +201,11 @@ class databaseManager:
                 cursor = connect.cursor()
 
                 cursor.execute(self.sqliteScript["db-new-password"],(DB_Sec_Password, dbName))
+
                 connect.commit()
                 connect.close()
             except Exception as err:
-                self.LogPrint.info(f"[Error] !From database.NewDBPassword <Database Error> : {err}",clientIP)
+                self.LogPrint.info(f"[Error] !From database.databaseManager.NewDBPassword <Database Error> : {err}",clientIP)
                 return "systemError"
 
             return None
@@ -292,7 +289,7 @@ class userManager(databaseManager):
                 connect.commit()
                 connect.close()
             except Exception as err:
-                self.LogPrint.error(f"[Error] !From database.userManager.new <Database Write Error> : {err}")
+                self.LogPrint.error(f"[Error] !From database.databaseManager.userManager.new <Database Write Error> : {err}")
                 return "systemError"
 
             return self.success_code
@@ -421,7 +418,8 @@ class userManager(databaseManager):
         elif isUser == "systemError":
             return isUser
 
-        if passwordIsTrue == True:            
+        if passwordIsTrue == True:
+            passw = databaseTools.UserEncryptPassword(Data)            
             try:
                 connect = databaseTools.UserDatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
                 cursor = connect.cursor()
@@ -430,7 +428,6 @@ class userManager(databaseManager):
                     return connect
                 
                 if columnName == "password":
-                    passw = databaseTools.UserEncryptPassword(Data)
                     cursor.execute(f"UPDATE users SET {columnName} = ? WHERE username = ?",(passw, userName))
                 else:
                     cursor.execute(f"UPDATE users SET {columnName} = ? WHERE username = ?",(Data, userName))
@@ -479,8 +476,8 @@ class userManager(databaseManager):
                 cursor = connect.cursor()
 
                 cursor.execute(self.sqliteScript["user-delete"],(userName,))
-                connect.commit()
 
+                connect.commit()
                 connect.close()
 
                 return self.success_code
