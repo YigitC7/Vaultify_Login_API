@@ -69,14 +69,17 @@ class databaseTools:
             return True
         else:
             return False
-        
-    def UserDatabaseConnect(dbName,clientKey,clientIP,timeout=15):
+    
+    def DatabaseConnect(dbName=None,clientKey=None,clientIP=None,normalConnect=None,timeout=30):
         LogPrint = logManager.Log()
 
         try:
+            if normalConnect != None and (dbName == None and clientKey == None and clientIP == None):
+                return sqlite3.connect(normalConnect,timeout=timeout)
+
             return sqlite3.connect(folders.DB+clientKey+dbName+".db",timeout=timeout)
         except Exception as err:
-            LogPrint.error(f"[Error] !From database.databaseTools.UserDatabaseConnect <Database connect error> : {err}",ip=clientIP)
+            LogPrint.error(f"[Error] !From database.databaseTools.DatabaseConnect <Database connect error> : {err}",ip=clientIP)
             return "systemError"
         
     def UserEncryptPassword(password):
@@ -130,7 +133,7 @@ class databaseManager:
             return checkingDB[1]
 
         try:
-            connect = sqlite3.connect(folders.DB+clientKey+dbName+".db")
+            connect = databaseTools.DatabaseConnect(normalConnect=folders.DB+clientKey+dbName+".db")
             cursor = connect.cursor()
 
             cursor.execute(self.sqliteScript["new-db-info"])
@@ -197,7 +200,7 @@ class databaseManager:
             DB_Sec_Password = DB_PasswordAlogrithm.encrypt(dbNewPassword)
 
             try:
-                connect = sqlite3.connect(folders.DB+clientKey+dbName+".db")
+                connect = databaseTools.DatabaseConnect(normalConnect=folders.DB+clientKey+dbName+".db")
                 cursor = connect.cursor()
 
                 cursor.execute(self.sqliteScript["db-new-password"],(DB_Sec_Password, dbName))
@@ -273,7 +276,7 @@ class userManager(databaseManager):
 
         if passwordIsTrue == True:
             try:
-                connect = databaseTools.UserDatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
+                connect = databaseTools.DatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
                 cursor = connect.cursor()
 
                 if connect == "systemError":
@@ -327,7 +330,7 @@ class userManager(databaseManager):
 
         if passwordIsTrue == True:           
             try:
-                connect = databaseTools.UserDatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
+                connect = databaseTools.DatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
                 cursor = connect.cursor()
 
                 if connect == "systemError":
@@ -361,7 +364,6 @@ class userManager(databaseManager):
         if checkingDB[0] == False:
             return checkingDB[1]
         
-
         passwordIsTrue = databaseTools.passwordCheck(dbName=dbName,dbPassword=dbPassword,clientKey=clientKey,clientIP=clientIP)
 
         if passwordIsTrue == "systemError":
@@ -369,7 +371,7 @@ class userManager(databaseManager):
 
         if passwordIsTrue == True:
             try:
-                connect = databaseTools.UserDatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
+                connect = databaseTools.DatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
                 cursor = connect.cursor()
 
                 if connect == "systemError":
@@ -421,7 +423,7 @@ class userManager(databaseManager):
         if passwordIsTrue == True:
             passw = databaseTools.UserEncryptPassword(Data)            
             try:
-                connect = databaseTools.UserDatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
+                connect = databaseTools.DatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
                 cursor = connect.cursor()
 
                 if connect == "systemError":
@@ -472,7 +474,7 @@ class userManager(databaseManager):
 
         if passwordIsTrue == True:
             try:
-                connect = databaseTools.UserDatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
+                connect = databaseTools.DatabaseConnect(dbName=dbName,clientKey=clientKey,clientIP=clientIP)
                 cursor = connect.cursor()
 
                 cursor.execute(self.sqliteScript["user-delete"],(userName,))
@@ -491,7 +493,7 @@ class userManager(databaseManager):
 class ClientKeys(databaseManager):
     def createDB(self):
         try:
-            connect = sqlite3.connect(self.CK_DB_name)
+            connect = databaseTools.DatabaseConnect(normalConnect=self.CK_DB_name)
             cursor = connect.cursor()
 
             cursor.execute(self.sqliteScript["new-client-keys-db"])
@@ -503,7 +505,7 @@ class ClientKeys(databaseManager):
 
     def key_save(self,key,ip):
         try:
-            connect = sqlite3.connect(self.CK_DB_name)
+            connect = databaseTools.DatabaseConnect(normalConnect=self.CK_DB_name)
             cursor = connect.cursor()
 
             cursor.execute(self.sqliteScript["client-save"],(key,ip))
@@ -518,7 +520,7 @@ class ClientKeys(databaseManager):
 
     def check_Key(self,key):
         try:
-            connect = sqlite3.connect(self.CK_DB_name)
+            connect = databaseTools.DatabaseConnect(normalConnect=self.CK_DB_name)
             cursor = connect.cursor()
 
             cursor.execute(self.sqliteScript["check-key"],(key,))
