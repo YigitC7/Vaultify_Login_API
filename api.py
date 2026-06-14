@@ -398,8 +398,8 @@ class APIServer:
 
             ClientKey = request.headers.get("client-key")
 
-            DB_name = request.headers.get("name")
-            DB_password = request.headers.get("password")
+            DB_name = request.headers.get("db-name")
+            DB_password = request.headers.get("db-password")
 
             user_Name = parameters.get("user-name")
             column_Name = parameters.get("column-name")
@@ -485,7 +485,7 @@ class APIServer:
             }),200
 
     def OtherEndpoints(self):
-        self.flask.route("/",methods=["GET","POST"])
+        @self.flask.route("/",methods=["GET","POST"])
         def home():
             return jsonify({"document" : "https://yigitc7.com.tr/dock/vaultify-login-api"}),200
         

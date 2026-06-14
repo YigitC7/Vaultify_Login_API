@@ -3,7 +3,6 @@ from os import listdir, remove
 import timeDate
 import cryptologyAlgorithm
 import rescueKeyCreate
-import logManager
 
 class folders:
     Script = "sqliteScript/"
@@ -15,9 +14,7 @@ class databaseTools:
         with open(folders.Script+file_name, "r", encoding="utf-8") as file:
             return file.read()
         
-    def checkingDB(dbName, clientKey, ReturnMessages="database already exists"):
-        LogPrint = logManager.Log()
-        
+    def checkingDB(dbName, clientKey, ReturnMessages="database already exists"):        
         try:
             databases = listdir(folders.DB+clientKey)
 
@@ -26,7 +23,6 @@ class databaseTools:
             else:
                 return [False,ReturnMessages]
         except Exception as err:
-            LogPrint.error(f"[Error] !From database.databaseTools.checkingDB <System Error> : {err}")
             return "systemError"
         
     def rescuekeyReader(dbName,clientKey):
@@ -43,8 +39,6 @@ class databaseTools:
         return rescueKey
     
     def passwordCheck(dbName,dbPassword,clientKey,clientIP):
-        LogPrint = logManager.Log()
-
         try:
             connect = sqlite3.connect(folders.DB+clientKey+dbName+".db")
             cursor = connect.cursor()
@@ -61,7 +55,6 @@ class databaseTools:
             connect.close()
 
         except Exception as err:
-            LogPrint.error(f"[Error] !From database.databaseTools.passwordCheck <Database Read Error> : {err}",clientIP)
             return "systemError"
         
 
@@ -71,15 +64,12 @@ class databaseTools:
             return False
     
     def DatabaseConnect(dbName=None,clientKey=None,clientIP=None,normalConnect=None,timeout=30):
-        LogPrint = logManager.Log()
-
         try:
             if normalConnect != None and (dbName == None and clientKey == None and clientIP == None):
                 return sqlite3.connect(normalConnect,timeout=timeout)
 
             return sqlite3.connect(folders.DB+clientKey+dbName+".db",timeout=timeout)
         except Exception as err:
-            LogPrint.error(f"[Error] !From database.databaseTools.DatabaseConnect <Database connect error> : {err}",ip=clientIP)
             return "systemError"
         
     def UserEncryptPassword(password):
@@ -112,7 +102,6 @@ class databaseManager:
             "check-key" : databaseTools.sqlScriptRead("ClientKey/check-key.sql")
         }
         
-        self.LogPrint = logManager.Log()
         self.success_code = "ok"
         self.CK_DB_name = "ClientKeys.db"
     
@@ -144,10 +133,8 @@ class databaseManager:
             connect.close()
 
         except Exception as err:
-            self.LogPrint.error(f"[Error] !From database.databaseManager.new <DB Process Error> : {err}",clientIP)
             return "systemError"
 
-        self.LogPrint.info(f"[Info] <Database Created> : {dbName}",clientIP)
         return self.success_code
     
     def delete(self,dbName,dbPassword,clientKey,clientIP):
@@ -166,10 +153,8 @@ class databaseManager:
 
         if passwordIsTrue == True:
             remove(folders.DB+clientKey+dbName+".db")
-            self.LogPrint.info(f"[Info] <Database Deleted> : {dbName}",clientIP)
             return self.success_code
         else:
-            self.LogPrint.info(f"[Info] <Database Deletion Attempt> : Incorrect password {dbPassword}",clientIP)
             return "incorrect password"
     
     def rescuekeyRead(self,dbName,dbPassword,clientKey,clientIP):
@@ -191,7 +176,6 @@ class databaseManager:
         if passwordIsTrue == True:
             return {"rescuekey" : databaseTools.rescuekeyReader(dbName,clientKey)}
         else:
-            self.LogPrint.info(f"[Info] <rescue key Could Not Be Read> : Incorrect password {dbPassword}",clientIP)
             return error_Message
 
     def NewDBPassword(self,dbName,dbRescueKey,dbNewPassword,clientKey,clientIP):
@@ -208,7 +192,6 @@ class databaseManager:
                 connect.commit()
                 connect.close()
             except Exception as err:
-                self.LogPrint.info(f"[Error] !From database.databaseManager.NewDBPassword <Database Error> : {err}",clientIP)
                 return "systemError"
 
             return None
@@ -224,15 +207,12 @@ class databaseManager:
         realKey = databaseTools.rescuekeyReader(dbName,clientKey)
 
         if realKey != dbRescueKey:
-            self.LogPrint.error("[Error] <Client Error> : The client tried to change their password but entered the wrong key",clientIP)
             return "key is wrong"
         
         upgrade = upgrade()
 
         if upgrade != None:
             return upgrade
-
-        self.LogPrint.info("[Info] <Client Event> : The client changed their password",clientIP)
 
         return self.success_code
     
@@ -253,7 +233,6 @@ class databaseManager:
             return passwordIsTrue
         
         if passwordIsTrue == True:
-            self.LogPrint.info("[Info] <Client Event> : Client viewed rescuekey",ip=clientIP)
             return {"key" : rescuekey}
         else:
             return "incorrect password"
@@ -292,12 +271,10 @@ class userManager(databaseManager):
                 connect.commit()
                 connect.close()
             except Exception as err:
-                self.LogPrint.error(f"[Error] !From database.databaseManager.userManager.new <Database Write Error> : {err}")
                 return "systemError"
 
             return self.success_code
         else:
-            self.LogPrint.error("[Error] <Client Error> : An incorrect username was entered",ip=clientIP)
             return "incorrect password"
     
     def userData_get(self,dbName,dbPassword,clientKey,clientIP,userName):
@@ -350,7 +327,6 @@ class userManager(databaseManager):
 
                 return DATAS_AND_RESPONS
             except Exception as err:
-                self.LogPrint.error(f"[Error] !From database.userManager.userData_get <Database Read Error> : {err}")
                 return "systemError"
         else:
             return "incorrect password"
@@ -383,7 +359,6 @@ class userManager(databaseManager):
 
                 connect.close()
             except Exception as err:
-                self.LogPrint.error(f"[Error] !From database.userManager.User_columnQuery <Database Select Error> : {err}")
                 return "systemError"
             
             return [self.success_code,{
@@ -437,7 +412,6 @@ class userManager(databaseManager):
 
                 connect.close()
             except Exception as err:
-                self.LogPrint.error(f"[Error] !From database.userManager.User_update <Database Update Error> : {err}")
                 return "systemError"
             
             return self.success_code
@@ -484,7 +458,6 @@ class userManager(databaseManager):
 
                 return self.success_code
             except Exception as err:
-                self.LogPrint.error(f"[Error] !From database.userManager.User_delete <Database Delete Error> : {err}")
                 return "systemError"
         else:
             return "incorrect password"
@@ -501,7 +474,7 @@ class ClientKeys(databaseManager):
             connect.commit()
             connect.close()
         except Exception as err:
-            self.LogPrint.error(f"[Error] !From database.ClientKeys.createDB <Database Create Error> : {err}")
+            pass
 
     def key_save(self,key,ip):
         try:
@@ -515,7 +488,6 @@ class ClientKeys(databaseManager):
 
             return self.success_code
         except Exception as err:
-            self.LogPrint.error(f"[Error] !From database.ClientKeys.key_save <Database Insert Error> : {err}")
             return "systemError"
 
     def check_Key(self,key):
@@ -531,5 +503,4 @@ class ClientKeys(databaseManager):
 
             return exists
         except Exception as err:
-            self.LogPrint.error(f"[Error] !From database.ClientKeys.check_Key <Database SELECT Error> : {err}")
             return "systemError"
